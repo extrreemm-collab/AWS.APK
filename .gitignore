@@ -1,3 +1,10 @@
 /.git.bak
 /.git.disabled
 /.vscode
+/ams_project/backend/.env
+/ams_project/backend/.venv/
+/ams_project/backend/__pycache__/
+/ams_project/backend/*.db
+/ams_project/backend/*.log
+/ams_project/backend/*.pyc
+/ams_project/backend/routers/__pycache__/
