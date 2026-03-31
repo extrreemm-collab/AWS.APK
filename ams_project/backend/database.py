@@ -17,6 +17,12 @@ def _env_flag(name: str, default: str = "false") -> bool:
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ams_dev.db")
 SECRET_KEY = os.getenv("AMS_SECRET_KEY", "ams-dev-secret-key")
 GOOGLE_CLIENT_ID = os.getenv("AMS_GOOGLE_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
+SUPABASE_PROJECT_ID = os.getenv("SUPABASE_PROJECT_ID", "")
+SUPABASE_URL = os.getenv(
+    "SUPABASE_URL",
+    f"https://{SUPABASE_PROJECT_ID}.supabase.co" if SUPABASE_PROJECT_ID else "",
+)
+SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 8 * 60
 DEV_SEED_ENABLED = _env_flag("AMS_ENABLE_DEV_SEED", "true")
