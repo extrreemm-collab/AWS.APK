@@ -14,7 +14,14 @@ def _env_flag(name: str, default: str = "false") -> bool:
     return os.getenv(name, default).strip().lower() in {"1", "true", "yes", "on"}
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ams_dev.db")
+def _normalize_database_url(database_url: str) -> str:
+    url = database_url.strip()
+    if url.startswith("postgres://"):
+        return "postgresql://" + url[len("postgres://") :]
+    return url
+
+
+DATABASE_URL = _normalize_database_url(os.getenv("DATABASE_URL", "sqlite:///./ams_dev.db"))
 SECRET_KEY = os.getenv("AMS_SECRET_KEY", "ams-dev-secret-key")
 GOOGLE_CLIENT_ID = os.getenv("AMS_GOOGLE_CLIENT_ID", os.getenv("GOOGLE_CLIENT_ID", ""))
 SUPABASE_PROJECT_ID = os.getenv("SUPABASE_PROJECT_ID", "")
@@ -31,6 +38,12 @@ DEV_SEED_ENABLED = _env_flag("AMS_ENABLE_DEV_SEED", "true")
 def _validate_database_url(database_url: str) -> None:
     if database_url.startswith("sqlite"):
         return
+
+    if "[YOUR-PASSWORD]" in database_url:
+        raise RuntimeError(
+            "DATABASE_URL still contains [YOUR-PASSWORD]. Replace it with your real "
+            "database password."
+        )
 
     try:
         parsed_url = make_url(database_url)
@@ -50,6 +63,17 @@ def _validate_database_url(database_url: str) -> None:
             "DATABASE_URL appears malformed: the hostname contains '@'. This "
             "usually means the database password contains '@' and was not "
             "URL-encoded."
+        )
+
+    if (
+        any(os.getenv(name) for name in ("RAILWAY_ENVIRONMENT", "RAILWAY_SERVICE_ID", "RAILWAY_PROJECT_ID"))
+        and host.startswith("db.")
+        and host.endswith(".supabase.co")
+    ):
+        raise RuntimeError(
+            "Railway cannot use Supabase's direct database host here because that "
+            "host is IPv6-only. In Railway Variables, replace DATABASE_URL with the "
+            "Supabase Session pooler connection string from Supabase Connect."
         )
 
 
