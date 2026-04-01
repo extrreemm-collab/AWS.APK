@@ -12,6 +12,4 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY ams_project/backend/ .
 
-EXPOSE 8080
-
 CMD ["sh", "-c", "python -m uvicorn main:app --host 0.0.0.0 --port ${PORT:-8080}"]
